@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+	"strconv" 
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -26,6 +27,7 @@ func main() {
 	// ルートハンドラの設定
 	r.HandleFunc("/api/hello", helloHandler).Methods("GET")
 	r.HandleFunc("/api/todos", createToDoHandler).Methods("POST")
+	r.HandleFunc("/api/todos", getTodosHandler).Methods("GET") // 追加
 
 	// CORSミドルウェアの追加
 	handler := cors.Default().Handler(r)
@@ -63,5 +65,12 @@ func createToDoHandler(w http.ResponseWriter, r *http.Request) {
 
 // generateIDは簡易的なID生成関数
 func generateID() string {
-	return time.Now().Format("20060102150405")
+    return strconv.FormatInt(time.Now().UnixNano(), 10)
+}
+
+func getTodosHandler(w http.ResponseWriter, r *http.Request) {
+	// レスポンスの書き込み
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(todoList)
 }
